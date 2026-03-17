@@ -63,27 +63,27 @@ To seamlessly integrate an advanced AI Agent (like CrewAI, AutoGen, or LangGraph
 
 ```mermaid
 graph TD
-    subgraph Android Mobile App (Frontend)
-        UI[Jetpack Compose UI\n(Dashboard, Agent Hub)]
-        MVI[ViewModel\n(Intent & State Management)]
-        LocalDB[(Room Database\nLocal Inventory)]
+    subgraph Frontend [Android Mobile App]
+        UI["Jetpack Compose UI (Dashboard, Agent Hub)"]
+        MVI["ViewModel (Intent & State Management)"]
+        LocalDB[("Room Database (Local Inventory)")]
         
         UI -->|Triggers Intent| MVI
         MVI -->|Updates State| UI
         MVI -->|CRUD| LocalDB
     end
 
-    subgraph Python Backend (Future)
-        API[FastAPI Endpoint]
-        AgentEngine[Multi-Agent System\nCrewAI / LangGraph]
+    subgraph Backend [Python Backend - Future]
+        API["FastAPI Endpoint"]
+        AgentEngine["Multi-Agent System (CrewAI / LangGraph)"]
         
         API -->|Starts Task| AgentEngine
         AgentEngine -->|Returns Result| API
     end
 
-    subgraph External Services
-        LLM[LLM Provider API\n(Gemini, OpenAI)]
-        RecipeAPI[Recipe Database API]
+    subgraph Services [External Services]
+        LLM["LLM Provider API (Gemini, OpenAI)"]
+        RecipeAPI["Recipe Database API"]
     end
 
     MVI <-->|JSON over HTTP/REST| API
