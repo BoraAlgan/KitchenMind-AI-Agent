@@ -1,0 +1,42 @@
+# Gradle files
+.gradle/
+build/
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Android Studio / IntelliJ IDEA files
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+*.iml
+*.ipr
+*.iws
+
+# Built variants
+/build
+app/build/
+
+# External native build output
+.externalNativeBuild
+.cxx
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles/
+
+# Log files
+*.log
+
+# Android Studio captures
+/captures
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Private files (never commit)
+/google-services.json
+/app/google-services.json
