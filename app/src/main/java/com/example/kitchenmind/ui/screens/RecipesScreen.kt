@@ -28,11 +28,11 @@ data class RecipeItem(
 )
 
 val mockRecipes = listOf(
-    RecipeItem("Vegetable Stir-fry", 3, 15, "Easy", Color(0xFF60AD5E)),
-    RecipeItem("Tomato Basil Pasta", 2, 25, "Medium", Color(0xFFE57373)),
-    RecipeItem("Green Smoothie", 4, 5, "Easy", Color(0xFF81C784)),
-    RecipeItem("Omelette with Herbs", 2, 10, "Easy", Color(0xFFFFD54F)),
-    RecipeItem("Garlic Roasted Potatoes", 1, 45, "Medium", Color(0xFFFFB74D))
+    RecipeItem("Sebzeli sote", 3, 15, "Kolay", Color(0xFF60AD5E)),
+    RecipeItem("Domatesli makarna", 2, 25, "Orta", Color(0xFFE57373)),
+    RecipeItem("Yeşil smoothie", 4, 5, "Kolay", Color(0xFF81C784)),
+    RecipeItem("Otlu omlet", 2, 10, "Kolay", Color(0xFFFFD54F)),
+    RecipeItem("Sarımsaklı patates", 1, 45, "Orta", Color(0xFFFFB74D)),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +45,7 @@ fun RecipesScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("AI Recipe Output") },
+                title = { Text("Tarifler") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -72,12 +72,12 @@ fun RecipesScreen() {
                     ) {
                         Icon(
                             imageVector = Icons.Default.Build,
-                            contentDescription = "AI",
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Chef Insight: You have multiple items expiring soon. Check the recommendations below!",
+                            text = "İpucu: SKT’si yaklaşan ürünleriniz olabilir; envanter ve asistan sekmesinden kontrol edin.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -86,7 +86,7 @@ fun RecipesScreen() {
             }
 
             Text(
-                text = "Recommended for you",
+                text = "Öneriler (örnek)",
                 style = if (isLandscape) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -138,7 +138,7 @@ fun RecipeCard(recipe: RecipeItem, compact: Boolean = false) {
                 if (!compact) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Matches ${recipe.matchedIngredients} items",
+                        text = "${recipe.matchedIngredients} malzeme eşleşmesi",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -148,7 +148,7 @@ fun RecipeCard(recipe: RecipeItem, compact: Boolean = false) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "${recipe.prepTimeMinutes} min",
+                        text = "${recipe.prepTimeMinutes} dk",
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Gray
                     )

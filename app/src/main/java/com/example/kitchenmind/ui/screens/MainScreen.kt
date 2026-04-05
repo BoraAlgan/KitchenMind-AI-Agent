@@ -42,8 +42,23 @@ fun MainScreen() {
                 RecipesScreen()
             }
 
+            composable(BottomNavItem.Orders.route) {
+                OrderScreen(viewModel = viewModel)
+            }
+
             composable(BottomNavItem.Agent.route) {
-                AgentHubScreen(viewModel = viewModel)
+                AgentHubScreen(
+                    viewModel = viewModel,
+                    onNavigateToOrders = {
+                        navController.navigate(BottomNavItem.Orders.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
             }
 
             composable("add_item") {
@@ -61,7 +76,8 @@ fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
         BottomNavItem.Inventory,
         BottomNavItem.Recipes,
-        BottomNavItem.Agent
+        BottomNavItem.Orders,
+        BottomNavItem.Agent,
     )
 
     NavigationBar(

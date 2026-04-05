@@ -1,0 +1,7 @@
+# Python 3.10+ önerilir. tzdata: Windows'ta IANA saat dilimleri (ör. Europe/Istanbul).
+tzdata>=2024.1
+fastapi==0.135.3
+uvicorn[standard]==0.34.0
+python-dotenv==1.1.1
+crewai[litellm]==1.13.0
+langchain-openai==0.3.35

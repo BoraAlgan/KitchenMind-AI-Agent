@@ -1,52 +1,62 @@
 # KitchenMind
 
-A smart kitchen inventory management mobile application, designed to help users track their food items and minimize food waste. This repository contains the **Draft Version** of the app. 
+Mutfak envanterini takip etmeyi, SKT’ye göre uyarı vermeyi ve eldeki malzemelerle **CrewAI** destekli öneri (SKT özeti, tarif, sohbet) sunmayı amaçlayan Android uygulaması ve **FastAPI** backend’i.
 
-### Educational Purpose
-This project is developed as part of **Homework 2: Website Development & AI Agent Planning**. While the assignment title mentions website development, the draft implementation provided here is an **Android Mobile App** using modern Jetpack Compose.
+## Bu repoda ne var?
 
-## Project Overview
+| Bölüm | Açıklama |
+|-------|----------|
+| `app/` | Kotlin, Jetpack Compose, Room, MVI — telefon uygulaması |
+| `backend/` | FastAPI + CrewAI — `POST /api/v1/agent/suggest` |
+| `CREW_AI_IMPLEMENTATION.md` | Crew tarafının kısa özeti |
+| `CREW_AI_IMPLEMENTATION_REPORT.md` | Teslim / rapor (ajan, görev, kickoff snippet’leri, cfg) |
+| `AI_Agent_Planning_Document.md` | İlk planlama belgesi (İngilizce) |
 
-*   **Topic:** Smart Kitchen Inventory & Food Waste Reduction
-*   **Target Users:** Individuals and families looking for meal inspiration based on existing ingredients.
-*   **Technologies Used:**
-    *   **Language:** Kotlin
-    *   **UI Toolkit:** Jetpack Compose (Material Design 3)
-    *   **Architecture:** MVI (Model-View-Intent)
-    *   **Local Database:** Room Database & KSP
-    *   **Asynchrony:** Kotlin Coroutines & Flow
-    *   **Navigation:** Jetpack Navigation Compose
+## Teknolojiler (uygulama)
 
-## Setup and Run Instructions
+- Kotlin, Jetpack Compose (Material 3), MVI, Room, Coroutines / Flow, Navigation, Retrofit (agent API)
 
-### Prerequisites
-*   Android Studio (Iguana 2023.2.1 or newer recommended)
-*   Java Development Kit (JDK) 17
-*   An Android device or emulator running API Level 24 (Android 7.0) or higher.
+## Android’i çalıştırma
 
-### Steps to Run
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/KitchenMind.git
-    cd KitchenMind
-    ```
-2.  **Open in Android Studio:**
-    *   Launch Android Studio.
-    *   Select **File -> Open** and navigate to the cloned `KitchenMind` directory.
-    *   Wait for Gradle to sync dependencies.
-3.  **Build and Run:**
-    *   Select a virtual or physical device from the Run configurations dropdown.
-    *   Click the **Run 'app'** button (green play icon on the toolbar) or press `Shift + F10`.
+1. **Android Studio** (JDK 17) ile bu klasörü açın.
+2. Gradle senkronize olsun; emülatör veya cihaz seçin (**Run**).
 
-## AI Agent Planning
+**Asistan / tarif / SKT** özellikleri için backend’in ayakta olması gerekir.
 
-This project is built with the explicit intention of integrating a Multi-Agent Artificial Intelligence System (such as CrewAI or LangGraph) in future iterations. 
+### API adresi
 
-The application architecture utilizes **MVI (Model-View-Intent)**, which provides a highly decoupled and state-driven environment perfectly suited for background AI interactions. 
+Emülatör varsayılanı genelde `http://10.0.2.2:8000` olacak şekilde yapılandırılabilir. Kendi IP’niz için proje kökünde `local.properties`:
 
-For the complete strategic plan on how the AI Agent will be integrated, what problem it solves, and the high-level system architecture, please read the included planning document:
+```properties
+kitchenmind.api.baseUrl=http://192.168.x.x:8000
+```
 
-*   📄 **[AI Agent Planning Document (Markdown)](./AI_Agent_Planning_Document.md)**
+(Sonunda `/` olmasın.)
 
----
-*Created for the Website Development & AI Agent Planning assignment. March 2026.*
+## Backend’i çalıştırma
+
+Ayrıntılı kurulum, `.env`, Windows notları:
+
+**[backend/README.md](./backend/README.md)**
+
+Kısa özet:
+
+```bash
+cd backend
+python -m venv .venv
+# sanal ortamı açıp:
+pip install -r requirements.txt
+cp .env.example .env   # anahtarı doldurun
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## Dokümantasyon
+
+- **[backend/README.md](./backend/README.md)** — API, CrewAI, ortam değişkenleri  
+- **[CREW_AI_IMPLEMENTATION.md](./CREW_AI_IMPLEMENTATION.md)** — mimari ve ajan özeti  
+- **[CREW_AI_IMPLEMENTATION_REPORT.md](./CREW_AI_IMPLEMENTATION_REPORT.md)** — ödev teslimi için rapor şablonu  
+- **[AI_Agent_Planning_Document.md](./AI_Agent_Planning_Document.md)** — erken dönem planlama  
+
+## Lisans / ödev
+
+Eğitim amaçlı geliştirilmiştir. Uzaktan LLM kullanımı için kendi API anahtarınızı kullanın; `.env` dosyasını repoya eklemeyin.

@@ -38,6 +38,9 @@ class MainActivity : ComponentActivity() {
                                     is SideEffect.ShowToast -> {
                                         Toast.makeText(this@MainActivity, effect.message, Toast.LENGTH_SHORT).show()
                                     }
+                                    SideEffect.ClearAgentHubInput -> Unit
+                                    is SideEffect.ShowCookRecipeConfirmation -> Unit
+                                    SideEffect.NavigateToOrders -> Unit
                                 }
                             }
                         }

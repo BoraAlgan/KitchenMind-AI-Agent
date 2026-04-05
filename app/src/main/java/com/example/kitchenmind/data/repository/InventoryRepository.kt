@@ -30,4 +30,8 @@ class InventoryRepository(
     suspend fun insertCategory(category: Category) = categoryDao.insertCategory(category)
 
     suspend fun deleteCategory(category: Category) = categoryDao.deleteCategory(category)
+
+    suspend fun applyConsumptionDeltas(deltas: List<Pair<Int, Int>>) {
+        dao.applyConsumptionDeltas(deltas)
+    }
 }

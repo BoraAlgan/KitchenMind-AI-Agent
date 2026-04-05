@@ -1,0 +1,1 @@
+"""KitchenMind FastAPI backend."""

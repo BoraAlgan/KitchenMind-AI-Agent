@@ -44,8 +44,8 @@ fun DashboardScreen(
 
     itemToDelete?.let { item ->
         DeleteConfirmationDialog(
-            title = "Delete Item",
-            message = "Are you sure you want to delete \"${item.name}\"?",
+            title = "Ürünü sil",
+            message = "\"${item.name}\" silinsin mi?",
             onConfirm = {
                 viewModel.handleIntent(InventoryIntent.DeleteItem(item))
                 itemToDelete = null
@@ -56,8 +56,8 @@ fun DashboardScreen(
 
     categoryToDelete?.let { category ->
         DeleteConfirmationDialog(
-            title = "Delete Category",
-            message = "Are you sure you want to delete category \"${category.name}\"? All items in this category will remain but become uncategorized.",
+            title = "Kategoriyi sil",
+            message = "\"${category.name}\" kategorisi silinsin mi? Ürünler kalır, kategorisiz olur.",
             onConfirm = {
                 viewModel.handleIntent(InventoryIntent.DeleteCategory(category))
                 categoryToDelete = null
@@ -69,7 +69,7 @@ fun DashboardScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kitchen Dashboard") },
+                title = { Text("Mutfak envanteri") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -85,7 +85,7 @@ fun DashboardScreen(
                             onDismissRequest = { showAddMenu = false }
                         ) {
                             DropdownMenuItem(
-                                text = { Text("Add Item") },
+                                text = { Text("Ürün ekle") },
                                 onClick = {
                                     showAddMenu = false
                                     onNavigateToAddItem()
@@ -93,7 +93,7 @@ fun DashboardScreen(
                                 leadingIcon = { Icon(Icons.Default.Add, contentDescription = null) }
                             )
                             DropdownMenuItem(
-                                text = { Text("New Category") },
+                                text = { Text("Yeni kategori") },
                                 onClick = {
                                     showAddMenu = false
                                     showAddCategoryDialog = true
@@ -125,7 +125,7 @@ fun DashboardScreen(
                 if (uncategorizedItems.isNotEmpty() || state.itemList.isEmpty()) {
                     item(key = "header_uncategorized") {
                         CategoryHeader(
-                            title = "Uncategorized",
+                            title = "Kategorisiz",
                             onDeleteCategory = null
                         )
                     }
@@ -199,12 +199,12 @@ fun DeleteConfirmationDialog(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
             ) {
-                Text("Delete", color = Color.White)
+                Text("Sil", color = Color.White)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("İptal")
             }
         }
     )
@@ -213,7 +213,7 @@ fun DeleteConfirmationDialog(
 @Composable
 fun EmptyCategoryPlaceholder() {
     Text(
-        text = "No items in this category.",
+        text = "Bu kategoride ürün yok.",
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp)
@@ -313,13 +313,13 @@ fun InventoryItemGroupCard(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "Qty: ${item.quantity} ${item.unit}",
+                            text = "Miktar: ${item.quantity} ${item.unit}",
                             style = MaterialTheme.typography.bodyMedium
                         )
                         if (item.expiryDate != null) {
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Exp: ${dateFormatter.format(Date(item.expiryDate))}",
+                                text = "SKT: ${dateFormatter.format(Date(item.expiryDate))}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = statusColor,
                                 fontWeight = FontWeight.SemiBold

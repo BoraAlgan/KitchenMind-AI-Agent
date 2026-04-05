@@ -18,12 +18,12 @@ fun AddCategoryDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Category") },
+        title = { Text("Yeni kategori") },
         text = {
             OutlinedTextField(
                 value = categoryName,
                 onValueChange = { categoryName = it },
-                label = { Text("Category Name") },
+                label = { Text("Kategori adı") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
@@ -40,12 +40,12 @@ fun AddCategoryDialog(
                 },
                 enabled = categoryName.isNotBlank()
             ) {
-                Text("Add")
+                Text("Ekle")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("İptal")
             }
         }
     )

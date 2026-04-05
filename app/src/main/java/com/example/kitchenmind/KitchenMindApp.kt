@@ -2,6 +2,7 @@ package com.example.kitchenmind
 
 import android.app.Application
 import com.example.kitchenmind.di.appModule
+import com.example.kitchenmind.di.networkModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -13,7 +14,7 @@ class KitchenMindApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@KitchenMindApp)
-            modules(appModule)
+            modules(appModule, networkModule)
         }
     }
 }

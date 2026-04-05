@@ -40,3 +40,9 @@ Thumbs.db
 # Private files (never commit)
 /google-services.json
 /app/google-services.json
+
+# Python backend
+backend/.venv/
+backend/.env
+backend/**/__pycache__/
+backend/**/*.pyc

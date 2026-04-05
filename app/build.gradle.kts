@@ -1,6 +1,9 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
@@ -14,6 +17,21 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        val props = Properties()
+        val localProps = rootProject.file("local.properties")
+        if (localProps.exists()) {
+            localProps.inputStream().use { props.load(it) }
+        }
+        val baseRaw = props.getProperty("kitchenmind.api.baseUrl", "http://10.0.2.2:8000")
+            .trim()
+            .trimEnd('/')
+        val apiBaseUrl = "$baseRaw/"
+        buildConfigField(
+            "String",
+            "API_BASE_URL",
+            "\"${apiBaseUrl.replace("\\", "\\\\").replace("\"", "\\\"")}\"",
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -39,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -60,6 +79,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation("androidx.compose.material:material-icons-extended")
     
     // Navigation Connect
     implementation(libs.androidx.navigation.compose)
@@ -76,6 +96,11 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
