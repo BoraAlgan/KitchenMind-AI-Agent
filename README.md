@@ -56,7 +56,3 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 - **[CREW_AI_IMPLEMENTATION.md](./CREW_AI_IMPLEMENTATION.md)** — mimari ve ajan özeti  
 - **[CREW_AI_IMPLEMENTATION_REPORT.md](./CREW_AI_IMPLEMENTATION_REPORT.md)** — ödev teslimi için rapor şablonu  
 - **[AI_Agent_Planning_Document.md](./AI_Agent_Planning_Document.md)** — erken dönem planlama  
-
-## Lisans / ödev
-
-Eğitim amaçlı geliştirilmiştir. Uzaktan LLM kullanımı için kendi API anahtarınızı kullanın; `.env` dosyasını repoya eklemeyin.
