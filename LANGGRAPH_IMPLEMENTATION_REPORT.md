@@ -9,7 +9,7 @@ KitchenMind’a **LangGraph** ile bir **sipariş asistanı** ekledim. Kullanıc�
 
 ---
 
-## Akış (hocaya tek cümlelik)
+## Akış
 
 **Kullanıcı** → Android’de Sipariş ekranı → **sunucuya mesaj** → **LangGraph** işler → **cevap + durum** döner → onaylanınca **envanter güncellenir**.
 
