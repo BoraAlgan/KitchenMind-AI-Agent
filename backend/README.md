@@ -1,4 +1,4 @@
-# KitchenMind backend — CrewAI uygulaması
+# KitchenMind backend — CrewAI + Langraph
 
 FastAPI sunucusu. CrewAI ile sıralı ajan akışı: envanter özeti (analist), isteğe bağlı tarif + JSON (şef). Sohbet modunda tek ajan. LLM, OpenAI uyumlu uç noktalar (Groq, OpenRouter vb.) ile bağlanır.
 
