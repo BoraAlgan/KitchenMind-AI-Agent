@@ -45,3 +45,26 @@ data class SuggestResponseDto(
     val consumption: List<ConsumptionLineDto> = emptyList(),
     @SerialName("missing_items") val missingItems: List<MissingItemDto> = emptyList(),
 )
+
+// --- LangGraph sipariş akışı ---
+
+@Serializable
+data class OrderFlowStepRequestDto(
+    @SerialName("userMessage") val userMessage: String,
+    @SerialName("threadId") val threadId: String? = null,
+)
+
+@Serializable
+data class OrderDraftLineDto(
+    val name: String,
+    val quantity: Double,
+    val unit: String,
+)
+
+@Serializable
+data class OrderFlowStepResponseDto(
+    @SerialName("threadId") val threadId: String,
+    val message: String,
+    @SerialName("draftLines") val draftLines: List<OrderDraftLineDto> = emptyList(),
+    val status: String,
+)

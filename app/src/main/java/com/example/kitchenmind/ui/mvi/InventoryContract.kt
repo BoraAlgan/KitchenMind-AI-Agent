@@ -62,6 +62,16 @@ data class InventoryState(
     val lastRecipePlannedMissing: List<AgentMissingItem> = emptyList(),
     /** Demo sipariş sepeti; onay sonrası envantere eklenir. */
     val orderCart: List<OrderCartLine> = emptyList(),
+    /** LangGraph sipariş asistanı (`/api/v1/order-flow/step`). */
+    val orderFlowThreadId: String? = null,
+    val orderFlowChatMessages: List<OrderFlowChatBubble> = emptyList(),
+    val orderFlowLoading: Boolean = false,
+)
+
+/** Sipariş AI alt ekranı sohbet balonu. */
+data class OrderFlowChatBubble(
+    val isUser: Boolean,
+    val text: String,
 )
 
 sealed class InventoryIntent {
@@ -103,6 +113,12 @@ sealed class InventoryIntent {
 
     /** Demo: sepetteki kalemleri envantere ekler (gerçek ödeme yok). */
     object CompleteDemoOrder : InventoryIntent()
+
+    /** Sipariş asistanı oturumunu sıfırlar (yeni diyalog). */
+    object ResetOrderFlowChat : InventoryIntent()
+
+    /** LangGraph sipariş adımı — backend `order-flow/step`. */
+    data class SendOrderFlowMessage(val userMessage: String) : InventoryIntent()
 }
 
 sealed class SideEffect {

@@ -5,3 +5,9 @@ uvicorn[standard]==0.34.0
 python-dotenv==1.1.1
 crewai[litellm]==1.13.0
 langchain-openai==0.3.35
+# LangGraph sipariş akışı (CrewAI kodundan ayrı: app/order_flow/)
+# langchain-openai 0.3.x → langchain-core<1.0; langgraph 0.3+ çoğunlukla core 1.x ister → 0.2.x pin
+langgraph>=0.2.59,<0.3.0
+langchain-core>=0.3.78,<1.0.0
+# LangSmith: izleme (LANGSMITH_TRACING + LANGSMITH_API_KEY)
+langsmith>=0.1.0

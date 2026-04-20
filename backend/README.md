@@ -46,7 +46,8 @@ Aktif değilse (Windows):
 ```
 
 - Sağlık: `GET http://127.0.0.1:8000/health`
-- Öneri: `POST http://127.0.0.1:8000/api/v1/agent/suggest`
+- Öneri (CrewAI): `POST http://127.0.0.1:8000/api/v1/agent/suggest`
+- Sipariş diyaloğu (LangGraph, CrewAI’den ayrı kod: `app/order_flow/`): `POST http://127.0.0.1:8000/api/v1/order-flow/step`
 - OpenAPI: `http://127.0.0.1:8000/docs`
 
 ### `suggest` gövdesi (özet)
@@ -60,6 +61,22 @@ Tarif modunda yanıtta `consumption` ve `missing_items` dolabilir.
 **Stok düşümü:** İstekteki `inventoryItemId` (Room id) ile şefin `CONSUMPTION_JSON` çıktısı sunucuda doğrulanır; yanıttaki `consumption` güvenilir satırları içerir.
 
 **Eksik malzemeler:** `missing_items` şefin `MISSING_ITEMS_JSON` satırından gelir. Android’de liste, kopyala/paylaş ve demo sipariş sepeti ile kullanılır.
+
+### `order-flow/step` gövdesi (LangGraph)
+
+Kod `app/order_flow/` altında; CrewAI (`app/crew_kitchen.py`) ile aynı dosyada değildir.
+
+- `userMessage` (zorunlu): kullanıcı mesajı.
+- `threadId` (isteğe bağlı): aynı sohbet için sabit UUID; gönderilmezse sunucu yeni `threadId` üretir ve yanıtta döner.
+
+**Graf:** `parse_order_lines` → koşullu kenar → `emit_cancellation` | `finalize_confirmed_order` | `emit_clarification` | `compose_confirmation_prompt` → END.
+
+- Ürün listesi çıkarımı: `LLM_API_KEY` (veya Groq/OpenAI) varsa yapılandırılmış LLM çıktısı; yoksa basit metin bölme (virgül / ` ve ` / satır sonu).
+- `draftLines`: taslak sepet satırları (`name`, `quantity`, `unit`).
+- `status`: `collecting` | `awaiting_confirmation` | `completed` (onay sonrası) | `cancelled` (onay sorusunda iptal: hayır, iptal, vazgeç vb.).
+- `completed` veya `cancelled` sonrası yeni mesaj yeni sipariş turu olarak işlenir.
+
+Zaman aşımı **60 saniye**; hata **502**.
 
 ## Android emülatör
 

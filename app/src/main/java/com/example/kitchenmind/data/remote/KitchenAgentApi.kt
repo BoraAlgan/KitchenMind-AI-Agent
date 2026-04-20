@@ -1,5 +1,7 @@
 package com.example.kitchenmind.data.remote
 
+import com.example.kitchenmind.data.remote.dto.OrderFlowStepRequestDto
+import com.example.kitchenmind.data.remote.dto.OrderFlowStepResponseDto
 import com.example.kitchenmind.data.remote.dto.SuggestRequestDto
 import com.example.kitchenmind.data.remote.dto.SuggestResponseDto
 import retrofit2.http.Body
@@ -9,4 +11,7 @@ interface KitchenAgentApi {
 
     @POST("api/v1/agent/suggest")
     suspend fun suggest(@Body body: SuggestRequestDto): SuggestResponseDto
+
+    @POST("api/v1/order-flow/step")
+    suspend fun orderFlowStep(@Body body: OrderFlowStepRequestDto): OrderFlowStepResponseDto
 }

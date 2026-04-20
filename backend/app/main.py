@@ -1,20 +1,25 @@
-"""KitchenMind FastAPI: /health ve /api/v1/agent/suggest."""
+"""KitchenMind FastAPI: /health, /api/v1/agent/suggest (CrewAI), /api/v1/order-flow/step (LangGraph)."""
 
 from __future__ import annotations
 
+from dotenv import load_dotenv
+
+# LangSmith ve LLM anahtarları; `app.order_flow` içe aktarılmadan önce yüklensin.
+load_dotenv()
+
 import asyncio
+import uuid
 from contextlib import asynccontextmanager
 
-from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.crew_kitchen import _api_key, run_kitchen_suggestion
-from app.schemas import SuggestRequest, SuggestResponse
-
-load_dotenv()
+from app.order_flow import run_order_flow_step
+from app.schemas import OrderFlowStepRequest, OrderFlowStepResponse, SuggestRequest, SuggestResponse
 
 SUGGEST_TIMEOUT_SEC = 120.0
+ORDER_FLOW_TIMEOUT_SEC = 60.0
 
 
 @asynccontextmanager
@@ -80,4 +85,36 @@ async def agent_suggest(body: SuggestRequest) -> SuggestResponse:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"CrewAI/LLM çağrısı başarısız: {e!s}",
+        ) from e
+
+
+@app.post(
+    "/api/v1/order-flow/step",
+    response_model=OrderFlowStepResponse,
+    response_model_by_alias=True,
+    status_code=status.HTTP_200_OK,
+)
+async def order_flow_step(body: OrderFlowStepRequest) -> OrderFlowStepResponse:
+    """
+    LangGraph sipariş diyaloğu (Sprint 1: stub düğüm, LLM zorunlu değil).
+    `threadId` ile aynı oturumda çok turlu konuşma (bellek içi checkpoint).
+    """
+    raw_tid = body.thread_id
+    tid = raw_tid.strip() if isinstance(raw_tid, str) else ""
+    thread_id = tid if tid else str(uuid.uuid4())
+
+    try:
+        return await asyncio.wait_for(
+            asyncio.to_thread(run_order_flow_step, thread_id, body.user_message),
+            timeout=ORDER_FLOW_TIMEOUT_SEC,
+        )
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail=f"Sipariş akışı {int(ORDER_FLOW_TIMEOUT_SEC)} saniye içinde tamamlanamadı.",
+        ) from None
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"LangGraph çağrısı başarısız: {e!s}",
         ) from e

@@ -7,12 +7,14 @@ import com.example.kitchenmind.data.remote.AgentMessageCleaner
 import com.example.kitchenmind.data.remote.AgentRepository
 import com.example.kitchenmind.data.remote.dto.InventoryItemRequestDto
 import com.example.kitchenmind.data.remote.dto.MissingItemDto
+import com.example.kitchenmind.data.remote.dto.OrderFlowStepRequestDto
 import com.example.kitchenmind.data.remote.dto.SuggestRequestDto
 import com.example.kitchenmind.data.repository.InventoryRepository
 import com.example.kitchenmind.ui.mvi.AgentSuggestMode
 import com.example.kitchenmind.ui.mvi.InventoryIntent
 import com.example.kitchenmind.ui.mvi.InventoryState
 import com.example.kitchenmind.ui.mvi.AgentMissingItem
+import com.example.kitchenmind.ui.mvi.OrderFlowChatBubble
 import com.example.kitchenmind.ui.mvi.OrderCartLine
 import com.example.kitchenmind.ui.mvi.PendingConsumptionLine
 import com.example.kitchenmind.ui.mvi.RecipeConsumptionRef
@@ -75,6 +77,9 @@ class InventoryViewModel(
             is InventoryIntent.RemoveOrderCartLine -> removeOrderCartLine(intent.index)
             InventoryIntent.ClearOrderCart -> clearOrderCart()
             InventoryIntent.CompleteDemoOrder -> completeDemoOrder()
+            InventoryIntent.ResetOrderFlowChat -> resetOrderFlowChat()
+            is InventoryIntent.SendOrderFlowMessage ->
+                sendOrderFlowMessage(intent.userMessage)
         }
     }
 
@@ -225,6 +230,26 @@ class InventoryViewModel(
         _state.update { it.copy(orderCart = emptyList()) }
     }
 
+    private suspend fun fulfillCartLines(lines: List<OrderCartLine>) {
+        val orderedAt = System.currentTimeMillis()
+        for (line in lines) {
+            val qty = ceil(line.quantity).toInt().coerceAtLeast(1)
+            val name = line.name.trim()
+            repository.addOrUpdateItem(
+                InventoryItem(
+                    name = name,
+                    quantity = qty,
+                    unit = line.unit,
+                    expiryDate = EstimatedShelfLife.estimatedExpiryMillisAtEndOfDay(
+                        productName = name,
+                        orderedAtMillis = orderedAt,
+                    ),
+                    categoryId = 0,
+                ),
+            )
+        }
+    }
+
     private fun completeDemoOrder() {
         viewModelScope.launch {
             val cart = _state.value.orderCart
@@ -233,27 +258,87 @@ class InventoryViewModel(
                 return@launch
             }
             try {
-                val orderedAt = System.currentTimeMillis()
-                for (line in cart) {
-                    val qty = ceil(line.quantity).toInt().coerceAtLeast(1)
-                    val name = line.name.trim()
-                    repository.addOrUpdateItem(
-                        InventoryItem(
-                            name = name,
-                            quantity = qty,
-                            unit = line.unit,
-                            expiryDate = EstimatedShelfLife.estimatedExpiryMillisAtEndOfDay(
-                                productName = name,
-                                orderedAtMillis = orderedAt,
-                            ),
-                            categoryId = 0,
-                        ),
-                    )
-                }
+                fulfillCartLines(cart)
                 _state.update { it.copy(orderCart = emptyList()) }
                 emitEffect(SideEffect.ShowToast("Demo sipariş tamamlandı; ürünler envantere eklendi."))
             } catch (_: Exception) {
                 emitEffect(SideEffect.ShowToast("Sipariş tamamlanamadı."))
+            }
+        }
+    }
+
+    private fun resetOrderFlowChat() {
+        _state.update {
+            it.copy(
+                orderFlowThreadId = null,
+                orderFlowChatMessages = emptyList(),
+                orderFlowLoading = false,
+            )
+        }
+    }
+
+    private fun sendOrderFlowMessage(userMessage: String) {
+        val trimmed = userMessage.trim()
+        if (trimmed.isEmpty()) {
+            emitEffect(SideEffect.ShowToast("Bir şey yazın."))
+            return
+        }
+        viewModelScope.launch {
+            val threadId = _state.value.orderFlowThreadId
+            _state.update {
+                it.copy(
+                    orderFlowChatMessages = it.orderFlowChatMessages + OrderFlowChatBubble(true, trimmed),
+                    orderFlowLoading = true,
+                )
+            }
+            try {
+                val result = agentRepository
+                    .orderFlowStep(
+                        OrderFlowStepRequestDto(
+                            userMessage = trimmed,
+                            threadId = threadId,
+                        ),
+                    )
+                    .getOrThrow()
+                _state.update {
+                    it.copy(
+                        orderFlowThreadId = result.threadId,
+                        orderFlowChatMessages = it.orderFlowChatMessages +
+                            OrderFlowChatBubble(false, result.message),
+                        orderFlowLoading = false,
+                    )
+                }
+                when (result.status) {
+                    "completed" -> {
+                        val lines = result.draftLines.map { row ->
+                            OrderCartLine(row.name, row.quantity, row.unit)
+                        }
+                        if (lines.isNotEmpty()) {
+                            try {
+                                fulfillCartLines(lines)
+                                emitEffect(
+                                    SideEffect.ShowToast(
+                                        "Sipariş onaylandı; ürünler envantere eklendi.",
+                                    ),
+                                )
+                            } catch (_: Exception) {
+                                emitEffect(SideEffect.ShowToast("Envantere eklenemedi."))
+                            }
+                        }
+                        _state.update {
+                            it.copy(
+                                orderFlowThreadId = null,
+                                orderFlowChatMessages = emptyList(),
+                            )
+                        }
+                    }
+                    "cancelled" ->
+                        emitEffect(SideEffect.ShowToast("Sipariş iptal edildi."))
+                    else -> { }
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(orderFlowLoading = false) }
+                emitEffect(SideEffect.ShowToast(agentRepository.humanReadableError(e)))
             }
         }
     }

@@ -110,3 +110,65 @@ class SuggestResponse(BaseModel):
     message: str
     consumption: list[ConsumptionLineOut] = Field(default_factory=list)
     missing_items: list[MissingItemOut] = Field(default_factory=list)
+
+
+# --- LangGraph sipariş akışı (CrewAI suggest’ten ayrı; app/order_flow/) ---
+
+
+class OrderFlowStatus(str, Enum):
+    """Sipariş diyaloğu aşaması (Android ile aynı string değerler)."""
+
+    collecting = "collecting"
+    awaiting_confirmation = "awaiting_confirmation"
+    completed = "completed"
+    cancelled = "cancelled"
+
+
+class OrderDraftLineOut(BaseModel):
+    """Sepet satırı — Android `OrderCartLine` ile uyumlu."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    name: str = Field(..., min_length=1, max_length=200)
+    quantity: float = Field(..., gt=0)
+    unit: str = Field(..., min_length=1, max_length=32)
+
+
+class OrderFlowStepRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    thread_id: str | None = Field(
+        default=None,
+        alias="threadId",
+        max_length=128,
+        description="İstemci UUID; boşsa sunucu ilk yanıtta thread_id üretir (önerilir: istemci üretsin).",
+    )
+    user_message: str = Field(
+        ...,
+        alias="userMessage",
+        min_length=1,
+        max_length=4000,
+        description="Kullanıcının sipariş / onay metni.",
+    )
+
+    @field_validator("user_message", mode="before")
+    @classmethod
+    def strip_user_message_order(cls, v: str) -> str:
+        if isinstance(v, str):
+            s = v.strip()
+            if not s:
+                raise ValueError("user_message boş olamaz")
+            return s
+        return v
+
+
+class OrderFlowStepResponse(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    thread_id: str = Field(..., alias="threadId")
+    message: str
+    draft_lines: list[OrderDraftLineOut] = Field(
+        default_factory=list,
+        alias="draftLines",
+    )
+    status: OrderFlowStatus

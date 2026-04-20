@@ -1,5 +1,7 @@
 package com.example.kitchenmind.data.remote
 
+import com.example.kitchenmind.data.remote.dto.OrderFlowStepRequestDto
+import com.example.kitchenmind.data.remote.dto.OrderFlowStepResponseDto
 import com.example.kitchenmind.data.remote.dto.SuggestRequestDto
 import com.example.kitchenmind.data.remote.dto.SuggestResponseDto
 import java.io.IOException
@@ -13,6 +15,9 @@ class AgentRepository(
 
     suspend fun suggest(request: SuggestRequestDto): Result<SuggestResponseDto> =
         runCatching { api.suggest(request) }
+
+    suspend fun orderFlowStep(request: OrderFlowStepRequestDto): Result<OrderFlowStepResponseDto> =
+        runCatching { api.orderFlowStep(request) }
 
     fun humanReadableError(throwable: Throwable): String = when (throwable) {
         is HttpException -> {
