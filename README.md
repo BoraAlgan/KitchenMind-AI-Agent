@@ -32,7 +32,6 @@ Emülatör varsayılanı genelde `http://10.0.2.2:8000` olacak şekilde yapılan
 kitchenmind.api.baseUrl=http://192.168.x.x:8000
 ```
 
-(Sonunda `/` olmasın.)
 
 ## Backend’i çalıştırma
 
