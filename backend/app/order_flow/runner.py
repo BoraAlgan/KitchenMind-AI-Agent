@@ -54,6 +54,7 @@ def run_order_flow_step(thread_id: str, user_message: str) -> OrderFlowStepRespo
             "thread_id": thread_id,
         },
     }
+    #MCP 1. ADIM 
     #9. Adım
     #graphın çalışması için INVOKE ediyoruz! graph.py dosyamızı tetikliyoruz
     result = graph.invoke(

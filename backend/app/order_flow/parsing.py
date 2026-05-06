@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import re
+import os
+import json
+import asyncio
 from typing import Any
 
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
@@ -82,6 +85,88 @@ def _fallback_parse_lines(user_text: str) -> OrderParseResult:
             clarification_question="Ürün isimlerini net yazabilir misiniz? Örn: 2 kg domates, süt 1 L",
         )
     return OrderParseResult(lines=lines, needs_clarification=False)
+
+#mcp adımları -------------------------------------------------------------------------------------------------------------
+#MCP 4. ADIM - mcp açık mı değil mi kontrolü yapıyor.
+def _use_mcp_for_parse() -> bool:
+    return (os.getenv("ORDER_FLOW_USE_MCP") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+#mcp tool çağrısı adımı
+async def _call_mcp_draft_order_from_text(user_text: str) -> dict[str, Any]:
+    from mcp import ClientSession, StdioServerParameters
+    from mcp.client.stdio import stdio_client
+
+    python_bin = (os.getenv("ORDER_FLOW_MCP_PYTHON") or "python").strip()
+    params = StdioServerParameters(
+        command=python_bin,
+        #mcp server dosyasının bulunduğu yer ve bu fonksiyon python -m app.mcp_server ile MCP server’ı stdio üzerinden açıyor,
+        args=["-m", "app.mcp_server"],
+    )
+    async with stdio_client(params) as (read_stream, write_stream):
+        async with ClientSession(read_stream, write_stream) as session:
+            await session.initialize()
+            #MCP 7. ADIM
+            #mcp server'ın mcp_server.py dosyasındaki draft_order_from_text tool'unu çağırıyor ve payload alınır.
+            result = await session.call_tool(
+                "draft_order_from_text",
+                {"user_message": user_text},
+            )
+            content = getattr(result, "content", []) or []
+            for item in content:
+                text = getattr(item, "text", None)
+                if isinstance(text, str) and text.strip():
+                    parsed = json.loads(text)
+                    if isinstance(parsed, dict):
+                        return parsed
+            structured = getattr(result, "structured_content", None)
+            if isinstance(structured, dict):
+                return structured
+    return {}
+
+#MCP 5. ADIM
+#mcp parse lines adımı
+def _mcp_parse_lines(user_text: str) -> OrderParseResult | None:
+    #_use_mcp_for_parse() ile ORDER_FLOW_USE_MCP kontrolü yapıyor, env dosyasında ORDER_FLOW_USE_MCP=1 ise MCP kullanılır.
+    if not _use_mcp_for_parse():
+        return None
+    try:
+        #MCP 6. ADIM
+        #eğer MCP kullanılıyorsa, _call_mcp_draft_order_from_text fonksiyonu çağrılır ve payload alınır.
+        payload = asyncio.run(_call_mcp_draft_order_from_text(user_text))
+        lines_raw = payload.get("lines") if isinstance(payload, dict) else None
+        lines: list[OrderDraftLineOut] = []
+        for row in lines_raw or []:
+            if not isinstance(row, dict):
+                continue
+            name = str(row.get("name", "")).strip()
+            if not name:
+                continue
+            qty = float(row.get("quantity", 1.0) or 1.0)
+            unit = str(row.get("unit", "adet") or "adet").strip()
+            lines.append(OrderDraftLineOut(name=name, quantity=qty, unit=unit))
+
+        #MCP 8. ADIM OrdersParseResult return ediliyor ve nodes.py da state güncellenir.
+        return OrderParseResult(
+            #mcp parse lines adımı sonucu OrderParseResult return ediliyor ve
+            # _call_mcp_draft_order_from_text fonksiyonundan gelen payload ile birleştiriliyor.
+            lines=lines,
+            needs_clarification=bool(payload.get("needs_clarification", False)),
+            clarification_question=str(payload.get("clarification_question", "") or ""),
+            user_confirmed_order=False,
+            user_cancelled_order=False,
+        )
+    except Exception:
+        return None
+#mcp parse lines adımı bitiş -------------------------------------------------------------------------------------------------------------
+
+
+
+#MCP 9. ADIM - langraphdaki nodes.py run_structured_parse 'ı tetikliyor ve llm bağlantıları devam ediyor ya da mcp kullanılıyor.
 #13. Adım
 #nodes.py run_structured_parse 'ı tetikliyor.
 #Parse ediyor verimizi.
@@ -131,6 +216,16 @@ def run_structured_parse(state: dict[str, Any]) -> dict[str, Any]:
             "user_confirmed_order": True,
             "user_cancelled_order": False,
         }
+
+    
+    # MCP etkinse önce tool katmanını dene FAKAT başarısız olursa normal yolla ilerle
+    parsed_from_mcp = _mcp_parse_lines(text)
+    if parsed_from_mcp is not None:
+        #MCP 10. ADIM _result_to_state_patch ile patch’e çevrilir
+        patch = _result_to_state_patch(parsed_from_mcp)
+        patch.setdefault("user_confirmed_order", False)
+        patch.setdefault("user_cancelled_order", False)
+        return patch
 
     if not has_llm_configured():
         parsed = _fallback_parse_lines(text)

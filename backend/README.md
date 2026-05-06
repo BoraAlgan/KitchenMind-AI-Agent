@@ -72,6 +72,7 @@ Kod `app/order_flow/` altında; CrewAI (`app/crew_kitchen.py`) ile aynı dosyada
 **Graf:** `parse_order_lines` → koşullu kenar → `emit_cancellation` | `finalize_confirmed_order` | `emit_clarification` | `compose_confirmation_prompt` → END.
 
 - Ürün listesi çıkarımı: `LLM_API_KEY` (veya Groq/OpenAI) varsa yapılandırılmış LLM çıktısı; yoksa basit metin bölme (virgül / ` ve ` / satır sonu).
+- MCP (opsiyonel): `ORDER_FLOW_USE_MCP=1` ise parse adımı önce `app.mcp_server` içindeki `draft_order_from_text` tool'unu stdio ile çağırır; başarısızlıkta mevcut parse mantığına geri düşer (akış bozulmaz).
 - `draftLines`: taslak sepet satırları (`name`, `quantity`, `unit`).
 - `status`: `collecting` | `awaiting_confirmation` | `completed` (onay sonrası) | `cancelled` (onay sorusunda iptal: hayır, iptal, vazgeç vb.).
 - `completed` veya `cancelled` sonrası yeni mesaj yeni sipariş turu olarak işlenir.
@@ -95,6 +96,8 @@ Uygulama varsayılan olarak emülatör adresini kullanır. Değiştirmek için p
 
 - `LLM_API_KEY` veya `OPENAI_API_KEY`: zorunlu; yoksa öneri uç noktası **503** döner.
 - `LLM_MODEL`: isteğe bağlı (ör. `gpt-4o-mini`).
+- `ORDER_FLOW_USE_MCP`: `1/true/yes/on` yaparsanız sipariş parse adımı MCP tool katmanını dener.
+- `ORDER_FLOW_MCP_PYTHON`: MCP stdio sunucusu için Python komutu (varsayılan: `python`).
 - `crewai[litellm]` ile OpenRouter / `qwen/...` gibi modeller kullanılabilir; paket eksikse CrewAI LiteLLM uyarısı verebilir.
 
 İstek süresi yaklaşık **120 saniye**; aşımda **504**. Crew/LLM hatasında **502** ve `detail` mesajı.

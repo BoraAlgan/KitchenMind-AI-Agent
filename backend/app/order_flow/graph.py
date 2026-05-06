@@ -28,6 +28,7 @@ def build_order_flow_graph():
     g.add_node("compose_confirmation_prompt", node_compose_confirmation_prompt)
     g.add_node("finalize_confirmed_order", node_finalize_confirmed_order)
 
+    #MCP 2. ADIM 
     #10. Adım
     #BURASI STARTI VERDİĞİMİZ YER ve NODE LAR TETİKLENİYOR.
     g.add_edge(START, "parse_order_lines")

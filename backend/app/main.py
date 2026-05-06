@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dotenv import load_dotenv
 
-# LangSmith ve LLM anahtarları; `app.order_flow` içe aktarılmadan önce yüklensin.
+# LangSmith, LLM anahtarları ve MCP server; `app.order_flow` içe aktarılmadan önce yüklensin.
 load_dotenv()
 
 import asyncio
@@ -96,10 +96,7 @@ async def agent_suggest(body: SuggestRequest) -> SuggestResponse:
     status_code=status.HTTP_200_OK,
 )
 async def order_flow_step(body: OrderFlowStepRequest) -> OrderFlowStepResponse:
-    """
-    LangGraph sipariş diyaloğu (Sprint 1: stub düğüm, LLM zorunlu değil).
-    `threadId` ile aynı oturumda çok turlu konuşma (bellek içi checkpoint).
-    """
+
     raw_tid = body.thread_id
     tid = raw_tid.strip() if isinstance(raw_tid, str) else ""
     thread_id = tid if tid else str(uuid.uuid4())

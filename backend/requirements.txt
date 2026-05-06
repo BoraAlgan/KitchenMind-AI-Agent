@@ -11,3 +11,5 @@ langgraph>=0.2.59,<0.3.0
 langchain-core>=0.3.78,<1.0.0
 # LangSmith: izleme (LANGSMITH_TRACING + LANGSMITH_API_KEY)
 langsmith>=0.1.0
+# MCP server/client (order-flow parse için opsiyonel tool katmanı)
+mcp>=1.0.0

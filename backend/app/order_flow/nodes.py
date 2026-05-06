@@ -9,6 +9,7 @@ from langchain_core.messages import AIMessage, BaseMessage
 from app.order_flow.parsing import run_structured_parse
 from app.order_flow.state import OrderFlowState
 
+#MCP 3. ADIM
 #11. Adım
 #İlk node olan node_parse_order_lines tetikleniyor.
 #nodes.py çalışmaya başlıyor
