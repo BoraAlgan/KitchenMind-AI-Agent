@@ -9,14 +9,25 @@ from langchain_core.messages import AIMessage, BaseMessage
 from app.order_flow.parsing import run_structured_parse
 from app.order_flow.state import OrderFlowState
 
-
+#11. Adım
+#İlk node olan node_parse_order_lines tetikleniyor.
+#nodes.py çalışmaya başlıyor
+#nodes.py parsing.py tetikliyor
 def node_parse_order_lines(state: OrderFlowState) -> dict[str, Any]:
     """Serbest metinden yapılandırılmış satırlar ve yönlendirme bayrakları."""
+    #12. Adım
+    #parinsg.py tetiklendiği kısım
     return run_structured_parse(state)
 
 
+#node_parse_order_lines bitince route after parse çalışır.
+#bu bütün nodeları gerçekleştirir ve graph.py END' gider
 def route_after_parse(
     state: OrderFlowState,
+        #emit_clarification -> netleştirme sorusu
+        #compose_confirmation_prompt -> tasklak + onay sorusu
+        #emit_cancellation -> iptal mesajı
+        #finalize_confirmed -> tamamlandı mesajı
 ) -> Literal[
     "emit_cancellation",
     "finalize_confirmed",

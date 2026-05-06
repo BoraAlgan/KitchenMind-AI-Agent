@@ -87,7 +87,8 @@ async def agent_suggest(body: SuggestRequest) -> SuggestResponse:
             detail=f"CrewAI/LLM çağrısı başarısız: {e!s}",
         ) from e
 
-
+#8. Adım
+#Backend gelen isteği buradan karşılıyor.
 @app.post(
     "/api/v1/order-flow/step",
     response_model=OrderFlowStepResponse,
@@ -104,6 +105,8 @@ async def order_flow_step(body: OrderFlowStepRequest) -> OrderFlowStepResponse:
     thread_id = tid if tid else str(uuid.uuid4())
 
     try:
+        #9. Adım
+        #gelen request burada runner.py dosyası içindeki run_order_flow_step e devrediliyor.
         return await asyncio.wait_for(
             asyncio.to_thread(run_order_flow_step, thread_id, body.user_message),
             timeout=ORDER_FLOW_TIMEOUT_SEC,

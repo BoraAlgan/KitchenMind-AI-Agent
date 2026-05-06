@@ -28,8 +28,12 @@ def build_order_flow_graph():
     g.add_node("compose_confirmation_prompt", node_compose_confirmation_prompt)
     g.add_node("finalize_confirmed_order", node_finalize_confirmed_order)
 
+    #10. Adım
+    #BURASI STARTI VERDİĞİMİZ YER ve NODE LAR TETİKLENİYOR.
     g.add_edge(START, "parse_order_lines")
+    #GELEN MESAJI KESİN BİR ŞEKİLDE PARSE EDİYORUZ Kİ AI ın ANLAYABİLECEĞİ HALE GETİRELİM
     g.add_conditional_edges(
+        #CONDITIONAL KISIMLARI ELE ALIYORUZ.
         "parse_order_lines",
         route_after_parse,
         {
@@ -39,6 +43,7 @@ def build_order_flow_graph():
             "compose_confirmation_prompt": "compose_confirmation_prompt",
         },
     )
+    #NODE ların bitişi burada
     g.add_edge("emit_cancellation", END)
     g.add_edge("emit_clarification", END)
     g.add_edge("compose_confirmation_prompt", END)

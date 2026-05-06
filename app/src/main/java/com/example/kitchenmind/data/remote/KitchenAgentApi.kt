@@ -12,6 +12,8 @@ interface KitchenAgentApi {
     @POST("api/v1/agent/suggest")
     suspend fun suggest(@Body body: SuggestRequestDto): SuggestResponseDto
 
+    //7. adım
+    //mesajı bu interface api endpointi üzerinden atıyoruz. BACKEND TARAFI KARŞILIYOR BİZİ BU NOKTADA
     @POST("api/v1/order-flow/step")
     suspend fun orderFlowStep(@Body body: OrderFlowStepRequestDto): OrderFlowStepResponseDto
 }

@@ -16,7 +16,11 @@ class AgentRepository(
     suspend fun suggest(request: SuggestRequestDto): Result<SuggestResponseDto> =
         runCatching { api.suggest(request) }
 
+    //5. adım
+    //giden ve gelen veriyi dto yoluyla tutuyoruz
     suspend fun orderFlowStep(request: OrderFlowStepRequestDto): Result<OrderFlowStepResponseDto> =
+        //6. adım
+        //buradan api interface kısmına yollanır veri
         runCatching { api.orderFlowStep(request) }
 
     fun humanReadableError(throwable: Throwable): String = when (throwable) {

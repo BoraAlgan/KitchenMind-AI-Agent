@@ -277,6 +277,8 @@ class InventoryViewModel(
         }
     }
 
+//3. adım
+// bu block inputun işlendiği yer trimden apiye kadar
     private fun sendOrderFlowMessage(userMessage: String) {
         val trimmed = userMessage.trim()
         if (trimmed.isEmpty()) {
@@ -284,6 +286,7 @@ class InventoryViewModel(
             return
         }
         viewModelScope.launch {
+            //stateden önceki turun orderFlowThreadId değerini alır
             val threadId = _state.value.orderFlowThreadId
             _state.update {
                 it.copy(
@@ -291,23 +294,37 @@ class InventoryViewModel(
                     orderFlowLoading = true,
                 )
             }
+            //backend aynı sohbeti bu id ile döndürür
             try {
+                //4. adım
+                //sunucuya mesaj yolladağımız yer
+                //agentRepository kartmanına yolluyoruz
                 val result = agentRepository
                     .orderFlowStep(
                         OrderFlowStepRequestDto(
                             userMessage = trimmed,
+                            //başarılı döndüğünde thread eşitlenir.
                             threadId = threadId,
                         ),
                     )
                     .getOrThrow()
+
+                //başarılı cevap geldiğinde orderFlowThreadId ye yazılır threadid
+                //22. Adım
+                //asistanın cevabını chate ekler
                 _state.update {
                     it.copy(
                         orderFlowThreadId = result.threadId,
+                        //yeni mesaj 2. chat balonuna eklenir.
                         orderFlowChatMessages = it.orderFlowChatMessages +
                             OrderFlowChatBubble(false, result.message),
+                        //yükleme animasyonu sona erer
                         orderFlowLoading = false,
                     )
                 }
+                //gelen resulta göre inventory değişiklikeri için draftlines daki yeni malzemeler
+                //23. Adım
+                //gelen draftlines'ı envantere yazıyoruz ve envanter değişiyor
                 when (result.status) {
                     "completed" -> {
                         val lines = result.draftLines.map { row ->
@@ -315,8 +332,10 @@ class InventoryViewModel(
                         }
                         if (lines.isNotEmpty()) {
                             try {
+                                //fulfillCartLines ile yerel envantere ekleme(room tarafı repository üzerinden)
                                 fulfillCartLines(lines)
                                 emitEffect(
+                                    //sonra da toast mesajı başlatılır işlem tamamlandıktan sonra
                                     SideEffect.ShowToast(
                                         "Sipariş onaylandı; ürünler envantere eklendi.",
                                     ),

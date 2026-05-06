@@ -82,8 +82,11 @@ def _fallback_parse_lines(user_text: str) -> OrderParseResult:
             clarification_question="Ürün isimlerini net yazabilir misiniz? Örn: 2 kg domates, süt 1 L",
         )
     return OrderParseResult(lines=lines, needs_clarification=False)
-
-
+#13. Adım
+#nodes.py run_structured_parse 'ı tetikliyor.
+#Parse ediyor verimizi.
+#LLM bağlantısı burada yapılıyor.
+#run_structured_parse bitince node.py da state güncellenir.
 def run_structured_parse(state: dict[str, Any]) -> dict[str, Any]:
     """
     Graf durumundan son kullanıcı mesajını ve bağlamı okuyup
@@ -150,9 +153,15 @@ def run_structured_parse(state: dict[str, Any]) -> dict[str, Any]:
         f"Konuşma:\n{_format_history_for_prompt(messages)}\n\n"
         f"Son kullanıcı mesajı (odak): {text!r}"
     )
+    #14. Adım
     try:
         llm = build_chat_llm()
         structured = llm.with_structured_output(OrderParseResult)
+        #15. Adım
+        #structured.invoke ile modele promt gönderiyor.
+        #18. Adım
+        # VE GELEN PROMPTU ALIYOR.
+        #Nodelar bu şekilde sırayla tetiklenmeye devam ediyor. Ve -> runner.py sonucu API cevabına çevirir
         parsed: OrderParseResult = structured.invoke(
             [SystemMessage(content=system), HumanMessage(content=human)],
         )

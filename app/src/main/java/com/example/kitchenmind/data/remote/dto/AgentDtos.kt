@@ -48,12 +48,15 @@ data class SuggestResponseDto(
 
 // --- LangGraph sipariş akışı ---
 
+//7.1 adım
+//request için olan dto
 @Serializable
 data class OrderFlowStepRequestDto(
     @SerialName("userMessage") val userMessage: String,
     @SerialName("threadId") val threadId: String? = null,
 )
 
+//inventory değişiklikeri için olan dto
 @Serializable
 data class OrderDraftLineDto(
     val name: String,
@@ -61,6 +64,7 @@ data class OrderDraftLineDto(
     val unit: String,
 )
 
+//response için olan dto ve inventorydeki değişiklikler için draftlines mevcut
 @Serializable
 data class OrderFlowStepResponseDto(
     @SerialName("threadId") val threadId: String,

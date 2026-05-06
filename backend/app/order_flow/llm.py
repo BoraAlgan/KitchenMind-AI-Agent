@@ -41,7 +41,8 @@ def _normalize_groq_base_url(base: str) -> str:
 def _llm_model() -> str:
     return (os.getenv("LLM_MODEL") or "gpt-4o-mini").strip()
 
-
+#16. Adım
+#api key ve / base model burada set ediliyor
 def build_chat_llm() -> ChatOpenAI:
     """OpenAI uyumlu uç (Groq, OpenRouter vb.) — anahtar yoksa ValueError."""
     key = _api_key()
@@ -70,6 +71,8 @@ def build_chat_llm() -> ChatOpenAI:
     }
     if base:
         kw["base_url"] = base
+        #17. Adım
+        #parsing.py, llm.py de kurulan ChatOpenAI istemcisini kullanarak parse aşamasında LLM'e istek atıyor
     return ChatOpenAI(**kw)
 
 

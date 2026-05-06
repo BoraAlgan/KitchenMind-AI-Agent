@@ -53,6 +53,8 @@ fun OrderScreen(viewModel: InventoryViewModel) {
     val state by viewModel.state.collectAsState()
     var showAiDialog by remember { mutableStateOf(false) }
 
+//1. adım
+//ekran çıktısı buradan alınıyor
     if (showAiDialog) {
         OrderFlowAiDialog(
             state = state,
@@ -60,6 +62,8 @@ fun OrderScreen(viewModel: InventoryViewModel) {
                 viewModel.handleIntent(InventoryIntent.ResetOrderFlowChat)
                 showAiDialog = false
             },
+            //2. adım
+            //viewmodeldaki sendorderflowmessage kısmına yollanıyor
             onSend = { viewModel.handleIntent(InventoryIntent.SendOrderFlowMessage(it)) },
         )
     }
