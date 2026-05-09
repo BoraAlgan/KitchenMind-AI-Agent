@@ -11,6 +11,7 @@ Mutfak envanterini takip etmeyi, SKT’ye göre uyarı vermeyi ve eldeki malzeme
 | `CREW_AI_IMPLEMENTATION.md` | Crew tarafının kısa özeti |
 | `CREW_AI_IMPLEMENTATION_REPORT.md` | Crew teslim / rapor |
 | `LANGGRAPH_IMPLEMENTATION_REPORT.md` | LangGraph sipariş akışı — kısa rapor |
+| `MCP_IMPLEMENTATION_REPORT.md` | MCP (sipariş parse / LangGraph entegrasyonu) — rapor |
 | `AI_Agent_Planning_Document.md` | İlk planlama belgesi (İngilizce) |
 
 ## Teknolojiler (uygulama)
